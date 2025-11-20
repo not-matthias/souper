@@ -17,7 +17,7 @@
       let
         pkgs = nixpkgs.legacyPackages.${system};
 
-        llvmLib = pkgs.llvmPackages_20.llvm.lib or pkgs.llvmPackages_20.llvm;
+        llvmLib = pkgs.llvmPackages_21.llvm.lib or pkgs.llvmPackages_21.llvm;
         gccLib = pkgs.gcc.cc.lib or pkgs.gcc.cc;
 
         # Use Z3 from nixpkgs (version should be 4.12 or higher)
@@ -38,7 +38,7 @@
           };
 
           nativeBuildInputs = with pkgs; [ cmake ninja git re2c ];
-          buildInputs = [ z3-souper pkgs.llvm_20 ];
+          buildInputs = [ z3-souper pkgs.llvm_21 ];
 
           cmakeFlags = [
             "-DCMAKE_BUILD_TYPE=Release"
@@ -106,10 +106,10 @@
             ];
 
             buildInputs = with pkgs; [
-              llvmPackages_20.llvm
-              llvmPackages_20.llvm.dev  # Provides llvm-config
-              llvmPackages_20.clang
-              llvmPackages_20.compiler-rt
+              llvmPackages_21.llvm
+              llvmPackages_21.llvm.dev  # Provides llvm-config
+              llvmPackages_21.clang
+              llvmPackages_21.compiler-rt
               z3-souper
               alive2
               hiredis-souper
@@ -149,12 +149,12 @@
               mkdir -p third_party/llvm-Release-install/lib
 
               # Copy bin/ contents from both llvm and llvm.dev
-              cp -r ${pkgs.llvmPackages_20.llvm}/bin/* third_party/llvm-Release-install/bin/ 2>/dev/null || true
-              cp -r ${pkgs.llvmPackages_20.llvm.dev}/bin/* third_party/llvm-Release-install/bin/ 2>/dev/null || true
+              cp -r ${pkgs.llvmPackages_21.llvm}/bin/* third_party/llvm-Release-install/bin/ 2>/dev/null || true
+              cp -r ${pkgs.llvmPackages_21.llvm.dev}/bin/* third_party/llvm-Release-install/bin/ 2>/dev/null || true
 
               # Link include and lib
-              ln -sf ${pkgs.llvmPackages_20.llvm.dev}/include/* third_party/llvm-Release-install/include/ 2>/dev/null || true
-              ln -sf ${pkgs.llvmPackages_20.llvm}/lib/* third_party/llvm-Release-install/lib/ 2>/dev/null || true
+              ln -sf ${pkgs.llvmPackages_21.llvm.dev}/include/* third_party/llvm-Release-install/include/ 2>/dev/null || true
+              ln -sf ${pkgs.llvmPackages_21.llvm}/lib/* third_party/llvm-Release-install/lib/ 2>/dev/null || true
             '';
 
             cmakeFlags = [
@@ -288,12 +288,12 @@
           packages = with pkgs; [
             # Additional development tools
             gdb
-            lldb_20
+            lldb_21
             valgrind
             git
 
             # Formatters and linters
-            llvmPackages_20.clang-tools
+            llvmPackages_21.clang-tools
 
             # Build tools
             cmake
@@ -308,7 +308,7 @@
 
           shellHook = ''
             echo "Souper development environment"
-            echo "LLVM version: ${pkgs.llvmPackages_20.llvm.version}"
+            echo "LLVM version: ${pkgs.llvmPackages_21.llvm.version}"
             echo "Z3 version: ${z3-souper.version}"
             echo ""
             echo "Build with: nix build"
