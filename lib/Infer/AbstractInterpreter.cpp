@@ -93,22 +93,22 @@ namespace souper {
   namespace BinaryTransferFunctionsKB {
     llvm::KnownBits add(const llvm::KnownBits &LHS, const llvm::KnownBits &RHS) {
       return llvm::KnownBits::computeForAddSub(/*Add=*/true, /*NSW=*/false,
-                                               LHS, RHS);
+                                               /*Signed=*/false, LHS, RHS);
     }
 
     llvm::KnownBits addnsw(const llvm::KnownBits &LHS, const llvm::KnownBits &RHS) {
       return llvm::KnownBits::computeForAddSub(/*Add=*/true, /*NSW=*/true,
-                                               LHS, RHS);
+                                               /*Signed=*/true, LHS, RHS);
     }
 
     llvm::KnownBits sub(const llvm::KnownBits &LHS, const llvm::KnownBits &RHS) {
       return llvm::KnownBits::computeForAddSub(/*Add=*/false, /*NSW=*/false,
-                                               LHS, RHS);
+                                               /*Signed=*/false, LHS, RHS);
     }
 
     llvm::KnownBits subnsw(const llvm::KnownBits &LHS, const llvm::KnownBits &RHS) {
       return llvm::KnownBits::computeForAddSub(/*Add=*/false, /*NSW=*/true,
-                                               LHS, RHS);
+                                               /*Signed=*/true, LHS, RHS);
     }
 
     llvm::KnownBits mul(const llvm::KnownBits &LHS, const llvm::KnownBits &RHS) {
