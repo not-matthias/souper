@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.8)
 project(Souper)
 
+option(SOUPER_ENABLE_TESTS "Build Souper unit test executables" ON)
+
 set(CMAKE_MACOSX_RPATH NEW)
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -313,33 +315,37 @@ add_executable(souper2llvm
   tools/souper2llvm.cpp
 )
 
-add_executable(extractor_tests
-  unittests/Extractor/ExtractorTests.cpp
-)
+if (SOUPER_ENABLE_TESTS)
+  add_executable(extractor_tests
+    unittests/Extractor/ExtractorTests.cpp
+  )
 
-add_executable(inst_tests
-  unittests/Inst/InstTests.cpp
-)
+  add_executable(inst_tests
+    unittests/Inst/InstTests.cpp
+  )
 
-add_executable(parser_tests
-  unittests/Parser/ParserTests.cpp
-)
+  add_executable(parser_tests
+    unittests/Parser/ParserTests.cpp
+  )
 
-add_executable(codegen_tests
-  unittests/Codegen/CodegenTests.cpp
-)
+  add_executable(codegen_tests
+    unittests/Codegen/CodegenTests.cpp
+  )
 
-add_executable(interpreter_tests
-  unittests/Interpreter/InterpreterInfra.cpp
-  unittests/Interpreter/InterpreterTests.cpp)
+  add_executable(interpreter_tests
+    unittests/Interpreter/InterpreterInfra.cpp
+    unittests/Interpreter/InterpreterTests.cpp)
+endif()
 
 set(LLVM_LDFLAGS "${LLVM_LDFLAGS}")
 
-add_executable(bulk_tests
-  unittests/Interpreter/InterpreterInfra.cpp
-  utils/gen-xfer-funcs/BulkTests.cpp
-  utils/gen-xfer-funcs/Verification.cpp)
-target_include_directories(bulk_tests PUBLIC "${CMAKE_SOURCE_DIR}/unittests/Interpreter")
+if (SOUPER_ENABLE_TESTS)
+  add_executable(bulk_tests
+    unittests/Interpreter/InterpreterInfra.cpp
+    utils/gen-xfer-funcs/BulkTests.cpp
+    utils/gen-xfer-funcs/Verification.cpp)
+  target_include_directories(bulk_tests PUBLIC "${CMAKE_SOURCE_DIR}/unittests/Interpreter")
+endif()
 
 configure_file(
   ${CMAKE_SOURCE_DIR}/utils/gen-xfer-funcs/run_n.pl.in
@@ -379,10 +385,12 @@ foreach(target souper internal-solver-test lexer-test parser-test souper-check c
   set_target_properties(${target} PROPERTIES COMPILE_FLAGS "${LLVM_CXXFLAGS}")
   target_include_directories(${target} PRIVATE "${LLVM_INCLUDEDIR}")
 endforeach()
-foreach(target extractor_tests inst_tests parser_tests interpreter_tests bulk_tests codegen_tests)
-  set_target_properties(${target} PROPERTIES COMPILE_FLAGS "${GTEST_CXXFLAGS} ${LLVM_CXXFLAGS}")
-  target_include_directories(${target} PRIVATE "${LLVM_INCLUDEDIR}" "${GTEST_INCLUDEDIR}")
-endforeach()
+if (SOUPER_ENABLE_TESTS)
+  foreach(target extractor_tests inst_tests parser_tests interpreter_tests bulk_tests codegen_tests)
+    set_target_properties(${target} PROPERTIES COMPILE_FLAGS "${GTEST_CXXFLAGS} ${LLVM_CXXFLAGS}")
+    target_include_directories(${target} PRIVATE "${LLVM_INCLUDEDIR}" "${GTEST_INCLUDEDIR}")
+  endforeach()
+endif()
 
 # static
 target_link_libraries(kleeExpr ${LLVM_LIBS} ${LLVM_LDFLAGS})
@@ -409,12 +417,14 @@ target_link_libraries(souper-check souperTool souperExtractor souperKVStore soup
 target_link_libraries(souper-interpret souperTool souperExtractor souperKVStore souperSMTLIB2 souperParser ${HIREDIS_LIBRARY} ${ALIVE_LIBRARY} ${Z3_LIBRARY})
 target_link_libraries(count-insts souperParser)
 target_link_libraries(souper2llvm souperParser souperCodegen)
-target_link_libraries(extractor_tests souperExtractor souperParser ${GTEST_LIBS} ${ALIVE_LIBRARY})
-target_link_libraries(inst_tests souperInfer souperPass souperInst souperExtractor ${GTEST_LIBS} ${ALIVE_LIBRARY})
-target_link_libraries(parser_tests souperParser ${GTEST_LIBS} ${ALIVE_LIBRARY})
-target_link_libraries(codegen_tests souperCodegen souperInst ${GTEST_LIBS} ${ALIVE_LIBRARY})
-target_link_libraries(interpreter_tests souperInfer souperInst ${GTEST_LIBS} ${ALIVE_LIBRARY})
-target_link_libraries(bulk_tests souperInfer souperInst ${GTEST_LIBS} ${ALIVE_LIBRARY} ${Z3_LIBRARY})
+if (SOUPER_ENABLE_TESTS)
+  target_link_libraries(extractor_tests souperExtractor souperParser ${GTEST_LIBS} ${ALIVE_LIBRARY})
+  target_link_libraries(inst_tests souperInfer souperPass souperInst souperExtractor ${GTEST_LIBS} ${ALIVE_LIBRARY})
+  target_link_libraries(parser_tests souperParser ${GTEST_LIBS} ${ALIVE_LIBRARY})
+  target_link_libraries(codegen_tests souperCodegen souperInst ${GTEST_LIBS} ${ALIVE_LIBRARY})
+  target_link_libraries(interpreter_tests souperInfer souperInst ${GTEST_LIBS} ${ALIVE_LIBRARY})
+  target_link_libraries(bulk_tests souperInfer souperInst ${GTEST_LIBS} ${ALIVE_LIBRARY} ${Z3_LIBRARY})
+endif()
 
 set(TEST_SYNTHESIS "ON" CACHE STRING "Enable additional, computationally intensive synthesis tests")
 set(TEST_LONG_DURATION_SYNTHESIS "" CACHE STRING "Enable long duration (> 10 min) synthesis tests")
