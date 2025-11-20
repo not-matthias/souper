@@ -162,6 +162,8 @@
               "-DLLVM_BUILD_TYPE=Release"
               "-DZSTD_LIBRARY_DIR=${pkgs.zstd.out}/lib"
               "-DSOUPER_ENABLE_TESTS=OFF"
+              "-DZ3=${z3-souper}/bin/z3"
+              "-DZ3_INCLUDE_DIR=${z3-souper.dev}/include"
               "-DCMAKE_INSTALL_RPATH=$ORIGIN/../lib:${llvmLib}/lib:${z3Lib}/lib:${hiredis-souper}/lib:${pkgs.zstd.out}/lib:${gccLib}/lib"
             ];
 
